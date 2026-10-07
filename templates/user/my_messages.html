@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}My Messages - Campus Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .message-item {
+        transition: all 0.3s ease;
+        border: 1px solid #dee2e6;
+    }
+    
+    .message-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .message-reply {
+        border-left: 4px solid #0d6efd;
+        background: rgba(13, 110, 253, 0.05);
+    }
+    
+    .message-original {
+        background: #f8f9fa;
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">        
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="fas fa-envelope text-primary me-2"></i>My Messages</h2>
+                    <p class="text-muted mb-0">View all your messages and admin replies</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('contact') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Send New Message
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Profile
+                    </a>
+                </div>
+            </div>
+
+            {% if messages_with_replies %}
+                {% for message in messages_with_replies %}
+                <div class="card message-item mb-4 shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="mb-1">{{ message.subject }}</h5>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>Sent on {{ message.submitted_at|format_date('%B %d, %Y at %I:%M %p') }}
+                                </small>
+                            </div>
+                            <span class="badge status-badge
+                                {% if message.status == 'replied' %}bg-success
+                                {% elif message.status == 'read' %}bg-info  
+                                {% else %}bg-warning{% endif %}">
+                                <i class="fas 
+                                    {% if message.status == 'replied' %}fa-reply
+                                    {% elif message.status == 'read' %}fa-eye
+                                    {% else %}fa-envelope{% endif %} me-1"></i>
+                                {{ message.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="message-original p-3 rounded mb-3">
+                            <h6 class="mb-2">
+                                <i class="fas fa-user text-primary me-1"></i>Your Message:
+                            </h6>
+                            <p class="mb-0">{{ message.message }}</p>
+                        </div>
+                        
+                        {% if message.reply_message %}
+                        <div class="message-reply p-3 rounded">
+                            <h6 class="mb-2 text-primary">
+                                <i class="fas fa-reply me-1"></i>Admin Reply
+                                <small class="text-muted ms-2">
+                                    {{ message.replied_at|format_date('%B %d, %Y at %I:%M %p') }}
+                                </small>
+                            </h6>
+                            <p class="mb-0">{{ message.reply_message }}</p>
+                        </div>
+                        {% else %}
+                            {% if message.status == 'unread' %}
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Status:</strong> Your message has been received and is waiting to be reviewed by our admin team. 
+                                You'll see the reply here once it's available.
+                            </div>
+                            {% elif message.status == 'read' %}
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-eye me-2"></i>
+                                <strong>Status:</strong> Your message has been read by our admin team. 
+                                A reply will be posted here soon.
+                            </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Message ID: #{{ message.contact_id }}
+                            </small>
+                            {% if message.status == 'replied' %}
+                            <small class="text-success">
+                                <i class="fas fa-check-circle me-1"></i>Resolved
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% if messages_with_replies|length >= 10 %}
+                <div class="text-center mt-4">
+                    <p class="text-muted">Showing recent messages. For older messages, please contact admin.</p>
+                </div>
+                {% endif %}
+                
+            {% else %}
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-envelope-open fa-4x text-muted mb-4"></i>
+                        <h4>No Messages Yet</h4>
+                        <p class="text-muted mb-4">
+                            You haven't sent any messages to the admin team yet. 
+                            Have a question or need help? We're here for you!
+                        </p>
+                        <a href="{{ url_for('contact') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>Send Your First Message
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid bg-light py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <h5><i class="fas fa-question-circle text-primary me-2"></i>Need Help?</h5>
+                    <p class="text-muted mb-3">
+                        Our admin team typically responds within 24-48 hours during business days.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-envelope me-1"></i>Contact Admin
+                        </a>
+                        <a href="{{ url_for('about') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-info-circle me-1"></i>About Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messageItems = document.querySelectorAll('.message-item');
+    messageItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            item.style.transition = 'all 0.5s ease';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    setInterval(function() {
+        const pendingMessages = document.querySelectorAll('.badge.bg-warning, .badge.bg-info');
+        if (pendingMessages.length > 0) {
+            location.reload();
+        }
+    }, 300000);
+});
+</script>
+{% endblock %}

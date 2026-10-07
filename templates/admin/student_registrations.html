@@ -1,0 +1,200 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Student Registrations - Campus Event Management System{% endblock %}
+
+{% block page_title %}Student Registrations{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group">
+    <a href="{{ url_for('admin_students') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Students
+    </a>
+    <a href="{{ url_for('view_student', student_id=student.student_id) }}" class="btn btn-info">
+        <i class="fas fa-user"></i> View Student
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}   
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Student Information</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h4>{{ student.full_name }}</h4>
+                <p class="text-muted mb-1">#{{ student.student_number }} • {{ student.department }} • {{ student.year_level }}</p>
+                <p class="text-muted">{{ student.email }}</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="h3 text-primary">{{ registrations|length }}</div>
+                <div class="text-muted">Total Registrations</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Confirmed
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.confirmed_registrations }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Waitlisted
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.waitlist_registrations }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                            Cancelled
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.cancelled_registrations }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Total
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_registrations }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+<div class="card shadow">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Event Registrations</h6>
+        <div class="d-flex align-items-center">
+            <input type="text" class="form-control form-control-sm me-2" id="searchRegistrations" placeholder="Search events...">
+            <span class="badge bg-secondary">{{ registrations|length }} registrations</span>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if registrations %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="registrationsTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Event</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>Status</th>
+                        <th>Registered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registration in registrations %}
+                    <tr>
+                        <td>
+                            <div>
+                                <strong>{{ registration.title }}</strong>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ registration.category or 'General' }}</span>
+                        </td>
+                        <td>
+                            <div>{{ registration.event_date|format_date('%b %d, %Y') }}</div>
+                        </td>
+                        <td>{{ registration.venue }}</td>
+                        <td>
+                            {% if registration.status == 'registered' %}
+                            <span class="badge bg-success">Registered</span>
+                            {% elif registration.status == 'waitlist' %}
+                            <span class="badge bg-warning">Waitlist</span>
+                            {% elif registration.status == 'cancelled' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ registration.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small>{{ registration.registered_at|format_date('%b %d, %Y at %I:%M %p') }}</small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+            <h4>No Registrations Found</h4>
+            <p class="text-muted mb-4">This student hasn't registered for any events yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchRegistrations');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#registrationsTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Campus Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+.testimonial-card {
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.testimonial-rating .star {
+    font-size: 1.2rem;
+    margin-right: 2px;
+}
+
+.author-avatar {
+    flex-shrink: 0;
+}
+
+.stat-card {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
+}
+
+.testimonial-text p {
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+.event-info {
+    background: rgba(0,123,255,0.05);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 12px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Welcome to Campus Events</h1>
+                <p class="lead mb-4">Discover, register, and participate in amazing campus events. Connect with your community and create unforgettable memories.</p>
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('events') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-calendar-check"></i> Browse Events
+                    </a>
+                    {% if not session.user_id %}
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-user-plus"></i> Join Now
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="{{ url_for('static', filename='images/hero-events.png') }}" alt="Campus Events" class="img-fluid rounded-3">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-calendar fa-3x text-primary mb-3"></i>
+                    <h3 class="fw-bold">{{ total_events }}+</h3>
+                    <p class="text-muted">Total Events</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-users fa-3x text-success mb-3"></i>
+                    <h3 class="fw-bold">{{ total_students }}+</h3>
+                    <p class="text-muted">Active Students</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-ticket-alt fa-3x text-warning mb-3"></i>
+                    <h3 class="fw-bold">{{ total_registrations }}+</h3>
+                    <p class="text-muted">Total Registrations</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-star fa-3x text-info mb-3"></i>
+                    <h3 class="fw-bold">4.8/5</h3>
+                    <p class="text-muted">Student Rating</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="text-center mb-3">Upcoming Events</h2>
+                <p class="text-center text-muted">Don't miss out on these exciting upcoming events</p>
+            </div>
+        </div>
+        <div class="row" id="events-container">
+            {% for event in events %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 event-card">
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">{{ event.category }}</span>
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        <p class="card-text text-muted">{{ event.description[:100] }}...</p>
+                        <div class="event-details">
+                            <p><i class="fas fa-calendar-day"></i> {{ event.event_date|format_date('%b %d, %Y') }}</p>
+                            <p><i class="fas fa-clock"></i> {{ event.event_time|format_time('%I:%M %p') }}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ event.venue }}</p>
+                            <p><i class="fas fa-hourglass-end"></i> Registration until {{ event.registration_deadline|format_date('%b %d, %Y') }}</p>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        {% if session.user_id and session.role == 'student' %}
+                            {% if event.registration_deadline > now %}
+                            <button class="btn btn-primary w-100 register-btn" data-event-id="{{ event.event_id }}">
+                                Register Now
+                            </button>
+                            {% else %}
+                            <button class="btn btn-secondary w-100" disabled>Registration Closed</button>
+                            {% endif %}
+                        {% elif not session.user_id %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary w-100">Login to Register</a>
+                        {% endif %}
+                        <a href="{{ url_for('events') }}" class="btn btn-link w-100 mt-2">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h4>No Upcoming Events</h4>
+                    <p class="text-muted">Check back later for new events!</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('events') }}" class="btn btn-primary btn-lg">View All Events</a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <h2 class="text-center mb-3">What Students Say</h2>
+                <p class="text-center text-muted">Read testimonials from students who have participated in our events</p>
+            </div>
+        </div>
+        
+        <div class="row mb-5">
+            <div class="col-md-4 text-center">
+                <div class="stat-card bg-white rounded-3 p-3 shadow-sm">
+                    <i class="fas fa-comment fa-2x text-primary mb-2"></i>
+                    <h4 class="fw-bold text-primary">{{ total_testimonials }}</h4>
+                    <p class="text-muted mb-0">Total Testimonials</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="stat-card bg-white rounded-3 p-3 shadow-sm">
+                    <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                    <h4 class="fw-bold text-warning">{{ "%.1f"|format(average_rating) }}</h4>
+                    <p class="text-muted mb-0">Average Rating</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="stat-card bg-white rounded-3 p-3 shadow-sm">
+                    <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                    <h4 class="fw-bold text-success">{{ unique_events }}</h4>
+                    <p class="text-muted mb-0">Events Reviewed</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="testimonials-container">
+            {% for testimonial in testimonials %}
+            <div class="col-lg-6 mb-4">
+                <div class="testimonial-card bg-white rounded-3 p-4 shadow-sm h-100">
+                    <div class="testimonial-rating mb-3">
+                        {% for i in range(5) %}
+                            {% if i < testimonial.rating %}
+                                <span class="star text-warning">★</span>
+                            {% else %}
+                                <span class="star text-muted">★</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="testimonial-text mb-3">
+                        <p class="fst-italic text-dark">"{{ testimonial.testimonial }}"</p>
+                    </div>
+                    
+                    <div class="testimonial-author d-flex align-items-center">
+                        <div class="author-avatar me-3">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                {{ testimonial.full_name[0].upper() }}
+                            </div>
+                        </div>
+                        <div class="author-info">
+                            <h6 class="mb-1 fw-bold">{{ testimonial.full_name }}</h6>
+                            <small class="text-muted">{{ testimonial.department }} • {{ testimonial.year_level }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="event-info mt-3 pt-3 border-top">
+                        <small class="text-primary fw-bold">{{ testimonial.event_title }}</small>
+                        <br>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>{{ testimonial.created_at|format_date('%b %d, %Y') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                    <h4>No Testimonials Yet</h4>
+                    <p class="text-muted mb-4">Be the first to share your event experience!</p>
+                    {% if session.user_id and session.role == 'student' %}
+                    <a href="{{ url_for('profile') }}" class="btn btn-primary">
+                        <i class="fas fa-star me-2"></i>Share Your Experience
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login to Share
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if testimonials %}
+        <div class="text-center mt-4">
+            <a href="{{ url_for('testimonials') }}" class="btn btn-outline-primary">View All Testimonials</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Get Involved?</h2>
+        <p class="lead mb-4">Join thousands of students who are already discovering amazing events on campus.</p>
+        <div class="d-flex justify-content-center gap-3">
+            {% if not session.user_id %}
+            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">Create Account</a>
+            {% endif %}
+            <a href="{{ url_for('events') }}" class="btn btn-outline-light btn-lg">Explore Events</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.register-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const eventId = this.dataset.eventId;
+            registerForEvent(eventId, this);
+        });
+    });
+});
+
+function registerForEvent(eventId, button) {
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+    button.disabled = true;
+    
+    fetch('/api/events/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ event_id: eventId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+            button.innerHTML = '<i class="fas fa-check"></i> Registered';
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-success');
+        } else {
+            showAlert('error', data.message);
+            button.innerHTML = 'Register Now';
+            button.disabled = false;
+        }
+    })
+    .catch(error => {
+        showAlert('error', 'Registration failed. Please try again.');
+        button.innerHTML = 'Register Now';
+        button.disabled = false;
+    });
+}
+
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.querySelector('.container.mt-3').appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

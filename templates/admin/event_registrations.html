@@ -1,0 +1,343 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Event Registrations - {{ event.title }}{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">       
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-users"></i> Event Registrations
+            </h1>
+            <p class="mb-0 text-muted">{{ event.title }}</p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_events') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Events
+            </a>
+            <a href="{{ url_for('edit_event', event_id=event.event_id) }}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit Event
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-calendar-alt"></i> Event Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-primary">{{ event.title }}</h5>
+                            <p class="text-muted">{{ event.description }}</p>
+                            <p><strong>Date:</strong> {{ event.event_date|format_date('%B %d, %Y') }}</p>
+                            <p><strong>Time:</strong> {{ event.event_time|format_time('%I:%M %p') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Venue:</strong> {{ event.venue }}</p>
+                            <p><strong>Category:</strong> {{ event.category }}</p>
+                            <p><strong>Capacity:</strong> 
+                                {% if event.capacity %}
+                                    {{ event.capacity }} students
+                                {% else %}
+                                    Unlimited
+                                {% endif %}
+                            </p>
+                            <p><strong>Registration Deadline:</strong> {{ event.registration_deadline|format_date('%B %d, %Y at %I:%M %p') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Registrations
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.total_registrations }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Confirmed
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.confirmed_registrations }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Waitlist
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.waitlist_registrations }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Cancelled
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.cancelled_registrations }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-list"></i> Registered Students
+                </h6>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="exportRegistrations()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-outline-success" onclick="sendReminders()">
+                        <i class="fas fa-envelope"></i> Send Reminders
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if registrations %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="registrationsTable">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Student Number</th>
+                            <th>Department</th>
+                            <th>Year Level</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Registered At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in registrations %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                                        {{ reg.full_name.split()[0][0] }}{{ reg.full_name.split()[-1][0] if reg.full_name.split()|length > 1 else '' }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ reg.full_name }}</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ reg.student_number }}</td>
+                            <td>{{ reg.department }}</td>
+                            <td>{{ reg.year_level }}</td>
+                            <td>{{ reg.email }}</td>
+                            <td>
+                                {% if reg.status == 'registered' %}
+                                    <span class="badge bg-success">Confirmed</span>
+                                {% elif reg.status == 'waitlist' %}
+                                    <span class="badge bg-warning">Waitlist</span>
+                                {% elif reg.status == 'cancelled' %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ reg.status|title }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ reg.registered_at|format_date('%b %d, %Y') }}</small>
+                                <br>
+                                <small class="text-muted">{{ reg.registered_at|format_time('%I:%M %p') }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-info" onclick="viewStudent('{{ reg.student_id }}')" title="View Student">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    {% if reg.status == 'registered' %}
+                                    <button class="btn btn-outline-warning" onclick="moveToWaitlist('{{ reg.registration_id }}')" title="Move to Waitlist">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                    {% elif reg.status == 'waitlist' %}
+                                    <button class="btn btn-outline-success" onclick="confirmRegistration('{{ reg.registration_id }}')" title="Confirm Registration">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn btn-outline-danger" onclick="cancelRegistration('{{ reg.registration_id }}')" title="Cancel Registration">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-3x text-gray-300 mb-3"></i>
+                <h5 class="text-gray-600">No Registrations Yet</h5>
+                <p class="text-gray-500">No students have registered for this event.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('registrationsTable')) {
+        $('#registrationsTable').DataTable({
+            "pageLength": 25,
+            "order": [[6, "desc"]],
+            "columnDefs": [
+                { "orderable": false, "targets": 7 }
+            ]
+        });
+    }
+});
+
+function viewStudent(studentId) {
+    window.location.href = `/admin/students/${studentId}/view`;
+}
+
+function moveToWaitlist(registrationId) {
+    if (confirm('Move this student to waitlist?')) {
+        updateRegistrationStatus(registrationId, 'waitlist');
+    }
+}
+
+function confirmRegistration(registrationId) {
+    if (confirm('Confirm this registration?')) {
+        updateRegistrationStatus(registrationId, 'registered');
+    }
+}
+
+function cancelRegistration(registrationId) {
+    if (confirm('Cancel this registration? This action cannot be undone.')) {
+        updateRegistrationStatus(registrationId, 'cancelled');
+    }
+}
+
+function updateRegistrationStatus(registrationId, status) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    fetch(`/admin/registrations/${registrationId}/status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            status: status
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', data.message);
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            showNotification('error', data.error || 'Failed to update registration status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('error', 'Failed to update registration status');
+    });
+}
+
+function exportRegistrations() {
+    window.location.href = `/admin/events/{{ event.event_id }}/export`;
+}
+
+function sendReminders() {
+    if (confirm('Send reminder emails to all registered students?')) {
+        showNotification('info', 'Reminder emails feature coming soon!');
+    }
+}
+
+function showNotification(type, message) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

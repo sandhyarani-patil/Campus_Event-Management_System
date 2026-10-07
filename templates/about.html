@@ -1,0 +1,716 @@
+{% extends "base.html" %}
+
+{% block title %}About - Campus Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+        background-size: cover;
+    }
+    
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+        animation: gradientShift 8s ease-in-out infinite;
+    }
+    
+    @keyframes gradientShift {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+    
+    .floating-elements {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    
+    .floating-element {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .floating-element:nth-child(1) {
+        width: 80px;
+        height: 80px;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+        background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05));
+    }
+    
+    .floating-element:nth-child(2) {
+        width: 120px;
+        height: 120px;
+        top: 60%;
+        right: 10%;
+        animation-delay: 2s;
+        background: linear-gradient(45deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    }
+    
+    .floating-element:nth-child(3) {
+        width: 60px;
+        height: 60px;
+        top: 40%;
+        left: 80%;
+        animation-delay: 4s;
+        background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    }
+    
+    .floating-element:nth-child(4) {
+        width: 100px;
+        height: 100px;
+        top: 10%;
+        right: 30%;
+        animation-delay: 1s;
+        background: linear-gradient(45deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+    }
+    
+    .floating-element:nth-child(5) {
+        width: 70px;
+        height: 70px;
+        top: 70%;
+        left: 20%;
+        animation-delay: 3s;
+        background: linear-gradient(45deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.05));
+    }
+    
+    @keyframes float {
+        0%, 100% { 
+            transform: translateY(0px) rotate(0deg) scale(1); 
+            opacity: 0.7;
+        }
+        25% { 
+            transform: translateY(-15px) rotate(90deg) scale(1.1); 
+            opacity: 1;
+        }
+        50% { 
+            transform: translateY(-30px) rotate(180deg) scale(1); 
+            opacity: 0.8;
+        }
+        75% { 
+            transform: translateY(-15px) rotate(270deg) scale(1.1); 
+            opacity: 1;
+        }
+    }
+    
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+    }
+    
+    .animate-on-scroll.animated {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.5s;
+    }
+    
+    .stat-card:hover::before {
+        left: 100%;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .stat-number {
+        font-size: 3.5rem;
+        font-weight: 700;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .feature-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover::after {
+        transform: scaleX(1);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+    
+    .team-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .team-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    }
+    
+    .team-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+        color: white;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .team-card:hover .team-avatar {
+        transform: scale(1.1);
+    }
+    
+    .mission-vision-card {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    .mission-vision-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
+    .mission-vision-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .mission-vision-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 3rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .mission-vision-card:hover .mission-vision-icon {
+        transform: scale(1.1) rotate(10deg);
+    }
+    
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .gradient-text {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .section-divider {
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
+        margin: 4rem 0;
+    }
+    
+    .interactive-button {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        border: none;
+        z-index: 10;
+        pointer-events: auto;
+    }
+    
+    .interactive-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .interactive-button:hover::before {
+        left: 100%;
+    }
+    
+    .interactive-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .interactive-button:active {
+        transform: translateY(0);
+        box-shadow: 0 5px 10px rgba(102, 126, 234, 0.4);
+    }
+    
+    .interactive-button:focus {
+        outline: 2px solid rgba(255, 255, 255, 0.5);
+        outline-offset: 2px;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    .interactive-button:hover {
+        text-decoration: none;
+        color: white;
+    }
+    
+    .interactive-button:visited {
+        color: white;
+    }
+    
+    .interactive-button:link {
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center position-relative">
+                <h1 class="display-3 fw-bold mb-4 animate-on-scroll">About Campus Events</h1>
+                <p class="lead mb-4 animate-on-scroll" style="animation-delay: 0.2s;">
+                    Connecting students with unforgettable campus experiences through our comprehensive event management platform.
+                </p>
+                <div class="animate-on-scroll" style="animation-delay: 0.4s; position: relative; z-index: 10;">
+                    <a href="#features" class="interactive-button me-3">
+                        <i class="fas fa-rocket me-2"></i>Explore Features
+                    </a>
+                    <a href="#stats" class="interactive-button">
+                        <i class="fas fa-chart-bar me-2"></i>View Stats
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+
+    <div class="row mb-5" id="mission-vision">
+        <div class="col-lg-6 mb-4">
+            <div class="mission-vision-card animate-on-scroll">
+                <div class="mission-vision-icon bg-primary">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <h3 class="h4 gradient-text mb-3">Our Mission</h3>
+                <p class="text-muted">
+                    To create a vibrant campus community by providing a seamless platform for discovering, 
+                    organizing, and participating in diverse events that enrich student life and foster 
+                    personal growth.
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="mission-vision-card animate-on-scroll" style="animation-delay: 0.2s;">
+                <div class="mission-vision-icon bg-success">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3 class="h4 gradient-text mb-3">Our Vision</h3>
+                <p class="text-muted">
+                    To be the leading campus event platform that transforms how students engage with 
+                    their community, making every campus event accessible, memorable, and impactful 
+                    for all participants.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="row mb-5" id="stats">
+        <div class="col-12">
+            <h2 class="text-center mb-5 gradient-text animate-on-scroll">By The Numbers</h2>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card animate-on-scroll">
+                <div class="stat-number" data-count="{{ total_events }}">0</div>
+                <p class="text-muted mb-0">Events Hosted</p>
+                <i class="fas fa-calendar-alt text-primary mt-2" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card animate-on-scroll" style="animation-delay: 0.1s;">
+                <div class="stat-number" data-count="{{ total_students }}">0</div>
+                <p class="text-muted mb-0">Active Students</p>
+                <i class="fas fa-users text-success mt-2" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card animate-on-scroll" style="animation-delay: 0.2s;">
+                <div class="stat-number" data-count="{{ total_registrations }}">0</div>
+                <p class="text-muted mb-0">Total Registrations</p>
+                <i class="fas fa-ticket-alt text-warning mt-2" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stat-card animate-on-scroll" style="animation-delay: 0.3s;">
+                <div class="stat-number" data-count="98">0</div>
+                <p class="text-muted mb-0">Satisfaction Rate</p>
+                <i class="fas fa-heart text-danger mt-2" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="row mb-5" id="features">
+        <div class="col-12">
+            <h2 class="text-center mb-5 gradient-text animate-on-scroll">Why Choose Our Platform?</h2>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card animate-on-scroll">
+                <div class="feature-icon bg-primary">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h4 class="gradient-text">Easy Discovery</h4>
+                <p class="text-muted">Find events that match your interests with advanced search and filtering.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card animate-on-scroll" style="animation-delay: 0.1s;">
+                <div class="feature-icon bg-success">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h4 class="gradient-text">Mobile Friendly</h4>
+                <p class="text-muted">Access events and register on any device, anywhere on campus.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card animate-on-scroll" style="animation-delay: 0.2s;">
+                <div class="feature-icon bg-warning">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h4 class="gradient-text">Smart Reminders</h4>
+                <p class="text-muted">Get timely notifications about upcoming events and registration deadlines.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card animate-on-scroll" style="animation-delay: 0.3s;">
+                <div class="feature-icon bg-info">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h4 class="gradient-text">Real-time Updates</h4>
+                <p class="text-muted">Stay informed with live event updates and capacity information.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card animate-on-scroll" style="animation-delay: 0.4s;">
+                <div class="feature-icon" style="background: linear-gradient(45deg, #6f42c1, #e83e8c);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4 class="gradient-text">Community Building</h4>
+                <p class="text-muted">Connect with fellow students who share similar interests.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card animate-on-scroll" style="animation-delay: 0.5s;">
+                <div class="feature-icon bg-danger">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4 class="gradient-text">Secure Platform</h4>
+                <p class="text-muted">Your data and privacy are protected with enterprise-grade security.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="row" id="team">
+        <div class="col-12">
+            <h2 class="text-center mb-5 gradient-text animate-on-scroll">Our Team</h2>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="team-card animate-on-scroll">
+                <div class="team-avatar bg-primary">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h5 class="gradient-text">Admin Team</h5>
+                <p class="text-muted">Event Management</p>
+                <p class="small">Dedicated to creating amazing campus experiences for all students.</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="team-card animate-on-scroll" style="animation-delay: 0.1s;">
+                <div class="team-avatar bg-success">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h5 class="gradient-text">Faculty Advisors</h5>
+                <p class="text-muted">Guidance & Support</p>
+                <p class="small">Providing mentorship and support for student-led initiatives.</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="team-card animate-on-scroll" style="animation-delay: 0.2s;">
+                <div class="team-avatar bg-warning">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h5 class="gradient-text">Student Leaders</h5>
+                <p class="text-muted">Event Organizers</p>
+                <p class="small">Passionate students driving campus engagement and activities.</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="team-card animate-on-scroll" style="animation-delay: 0.3s;">
+                <div class="team-avatar bg-info">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h5 class="gradient-text">Support Team</h5>
+                <p class="text-muted">Technical Support</p>
+                <p class="small">Ensuring the platform runs smoothly for all users.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="display-5 fw-bold mb-4">Ready to Get Started?</h2>
+                <p class="lead mb-4">Join thousands of students who are already discovering amazing campus events!</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{{ url_for('events') }}" class="btn btn-outline-light btn-lg px-4 py-3">
+                        <i class="fas fa-calendar me-2"></i>Browse Events
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animated');
+        }
+    });
+}, observerOptions);
+
+document.addEventListener('DOMContentLoaded', function() {
+    const animateElements = document.querySelectorAll('.animate-on-scroll');
+    animateElements.forEach(el => observer.observe(el));
+    
+    const statNumbers = document.querySelectorAll('.stat-number');
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateNumber(entry.target);
+                statsObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    statNumbers.forEach(stat => statsObserver.observe(stat));
+});
+
+function animateNumber(element) {
+    const target = parseInt(element.getAttribute('data-count'));
+    const duration = 2000;
+    const increment = target / (duration / 16);
+    let current = 0;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            current = target;
+            clearInterval(timer);
+        }
+        element.textContent = Math.floor(current);
+    }, 16);
+}
+
+
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const parallax = document.querySelector('.hero-section');
+    if (parallax) {
+        const speed = scrolled * 0.5;
+        parallax.style.transform = `translateY(${speed}px)`;
+    }
+});
+
+</script>
+
+<style>
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 0;
+    }
+    
+    .display-3 {
+        font-size: 2.5rem;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+    }
+    
+    .feature-card, .team-card, .mission-vision-card {
+        margin-bottom: 2rem;
+    }
+}
+</style>
+{% endblock %}

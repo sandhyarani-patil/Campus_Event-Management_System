@@ -1,0 +1,222 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Manage Students - Campus Event Management System{% endblock %}
+
+{% block page_title %}Student Management{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group">
+    <button class="btn btn-success" onclick="exportStudents()">
+        <i class="fas fa-download"></i> Export
+    </button>
+</div>
+{% endblock %}
+
+{% block admin_content %}   
+<div class="card shadow">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">All Students</h6>
+        <div class="d-flex align-items-center">
+            <input type="text" class="form-control form-control-sm me-2" id="searchStudents" placeholder="Search students...">
+            <span class="badge bg-secondary">{{ students|length }} students</span>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if students %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="studentsTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Student Info</th>
+                        <th>Department</th>
+                        <th>Year Level</th>
+                        <th>Registrations</th>
+                        <th>Joined</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-placeholder bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div>
+                                    <strong>{{ student.full_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">#{{ student.student_number }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ student.department }}</td>
+                        <td>
+                            <span class="badge bg-info">{{ student.year_level }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-success">{{ student.registration_count or 0 }}</span>
+                        </td>
+                        <td>
+                            <small>{{ student.created_at|format_date('%b %d, %Y') }}</small>
+                        </td>
+                        <td>
+                            {% if student.status == 'active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewStudent('{{ student.student_id }}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="editStudent('{{ student.student_id }}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="viewRegistrations('{{ student.student_id }}')" title="View Registrations">
+                                    <i class="fas fa-calendar-check"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteStudent('{{ student.student_id }}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-4x text-muted mb-3"></i>
+            <h4>No Students Found</h4>
+            <p class="text-muted mb-4">No students have registered yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+    
+<div class="row mt-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Students
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ students|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Active Students
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ students|selectattr('status', 'eq', 'active')|list|length }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Total Registrations
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ students|sum(attribute='registration_count') or 0 }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-ticket-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchStudents');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#studentsTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+
+function viewStudent(studentId) {
+    window.location.href = `/admin/students/${studentId}`;
+}
+
+function editStudent(studentId) {
+    window.location.href = `/admin/students/${studentId}/edit`;
+}
+
+function viewRegistrations(studentId) {
+    window.location.href = `/admin/students/${studentId}/registrations`;
+}
+
+function deleteStudent(studentId) {
+    if (confirm('Are you sure you want to delete this student? This action cannot be undone and will also delete their user account.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/students/${studentId}/delete`;
+        
+        const csrfToken = document.querySelector('meta[name=csrf-token]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function exportStudents() {
+    window.location.href = '/admin/students/export';
+}
+</script>
+{% endblock %}

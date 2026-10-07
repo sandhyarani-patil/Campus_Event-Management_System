@@ -1,0 +1,162 @@
+{% extends "admin/base.html" %}
+
+{% block title %}View Student - Campus Event Management System{% endblock %}
+
+{% block page_title %}Student Details{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group">
+    <a href="{{ url_for('admin_students') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Students
+    </a>
+    <a href="{{ url_for('edit_student', student_id=student.student_id) }}" class="btn btn-warning">
+        <i class="fas fa-edit"></i> Edit Student
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Student Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Full Name:</label>
+                            <p class="form-control-plaintext">{{ student.full_name }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Student Number:</label>
+                            <p class="form-control-plaintext">#{{ student.student_number }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email:</label>
+                            <p class="form-control-plaintext">{{ student.email }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Department:</label>
+                            <p class="form-control-plaintext">{{ student.department }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Year Level:</label>
+                            <span class="badge bg-info">{{ student.year_level }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Phone:</label>
+                            <p class="form-control-plaintext">{{ student.phone or 'Not provided' }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Account Status:</label>
+                            <span class="badge bg-success">Active</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Joined Date:</label>
+                            <p class="form-control-plaintext">{{ student.created_at|format_date('%B %d, %Y at %I:%M %p') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Registration Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <div class="h2 text-primary">{{ registrations|length }}</div>
+                        <div class="text-muted">Total Registrations</div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="h4 text-success">{{ registrations|selectattr('status', 'eq', 'registered')|list|length }}</div>
+                        <div class="text-muted">Confirmed</div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="h4 text-warning">{{ registrations|selectattr('status', 'eq', 'waitlist')|list|length }}</div>
+                        <div class="text-muted">Waitlisted</div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="h4 text-danger">{{ registrations|selectattr('status', 'eq', 'cancelled')|list|length }}</div>
+                        <div class="text-muted">Cancelled</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Event Registrations</h6>
+        <a href="{{ url_for('view_student_registrations', student_id=student.student_id) }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-eye"></i> View All
+        </a>
+    </div>
+    <div class="card-body">
+        {% if registrations %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>Status</th>
+                        <th>Registered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registration in registrations[:5] %}
+                    <tr>
+                        <td>
+                            <strong>{{ registration.title }}</strong>
+                        </td>
+                        <td>{{ registration.event_date|format_date('%b %d, %Y') }}</td>
+                        <td>{{ registration.venue }}</td>
+                        <td>
+                            {% if registration.status == 'registered' %}
+                            <span class="badge bg-success">Registered</span>
+                            {% elif registration.status == 'waitlist' %}
+                            <span class="badge bg-warning">Waitlist</span>
+                            {% elif registration.status == 'cancelled' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ registration.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small>{{ registration.registered_at|format_date('%b %d, %Y') }}</small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if registrations|length > 5 %}
+        <div class="text-center mt-3">
+            <p class="text-muted">Showing 5 of {{ registrations|length }} registrations</p>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <h5>No Registrations</h5>
+            <p class="text-muted">This student hasn't registered for any events yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block title %}Student Testimonials - Campus Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .testimonials-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .testimonials-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+        background-size: cover;
+    }
+    
+    .testimonials-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .testimonial-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .testimonial-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+    }
+    
+    .testimonial-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .testimonial-header {
+        display: flex;
+        justify-content: between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+    
+    .testimonial-rating {
+        display: flex;
+        gap: 2px;
+        margin-bottom: 1rem;
+    }
+    
+    .star {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+    
+    .star-empty {
+        color: #ddd;
+    }
+    
+    .testimonial-text {
+        font-style: italic;
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .testimonial-text::before {
+        content: '';
+        font-size: 4rem;
+        color: #667eea;
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        opacity: 0.3;
+        font-family: serif;
+    }
+    
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .author-info h6 {
+        margin: 0;
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .author-info small {
+        color: #666;
+    }
+    
+    .event-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 0.8rem;
+        margin-top: 1rem;
+        border-left: 4px solid #667eea;
+    }
+    
+    .event-info h6 {
+        color: #667eea;
+        margin: 0 0 0.5rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .event-info small {
+        color: #666;
+    }
+    
+    .stats-card {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-number {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-label {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .filter-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 3rem;
+    }
+    
+    .filter-btn {
+        border: 2px solid #667eea;
+        border-radius: 25px;
+        padding: 0.5rem 1.5rem;
+        margin: 0.25rem;
+        transition: all 0.3s ease;
+        background: transparent;
+        color: #667eea;
+    }
+    
+    .filter-btn:hover,
+    .filter-btn.active {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .no-testimonials {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .no-testimonials i {
+        font-size: 4rem;
+        color: #667eea;
+        margin-bottom: 1rem;
+    }
+    
+    .animate-on-scroll {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.6s ease;
+    }
+    
+    .animate-on-scroll.animated {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .js-enabled .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    
+    .js-enabled .animate-on-scroll.animated {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+{% endblock %}
+
+{% block content %}         
+<section class="testimonials-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center testimonials-hero-content">
+                <h1 class="display-4 fw-bold mb-4">Student Experiences</h1>
+                <p class="lead mb-4">Hear what our students have to say about their event experiences</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-star me-2"></i>{{ testimonials|length }} Testimonials
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-users me-2"></i>Student Voices
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="stats-card animate-on-scroll">
+                <div class="stats-number">{{ testimonials|length }}</div>
+                <div class="stats-label">Total Testimonials</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card animate-on-scroll" data-animation-delay="0.1">
+                <div class="stats-number">{{ average_rating|round(1) }}</div>
+                <div class="stats-label">Average Rating</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card animate-on-scroll" data-animation-delay="0.2">
+                <div class="stats-number">{{ unique_events }}</div>
+                <div class="stats-label">Events Reviewed</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-section animate-on-scroll">
+        <h4 class="mb-3">Filter by Rating</h4>
+        <div class="d-flex flex-wrap">
+            <button class="filter-btn active" data-rating="all">All Ratings</button>
+            <button class="filter-btn" data-rating="5">5 Stars</button>
+            <button class="filter-btn" data-rating="4">4 Stars</button>
+            <button class="filter-btn" data-rating="3">3 Stars</button>
+            <button class="filter-btn" data-rating="2">2 Stars</button>
+            <button class="filter-btn" data-rating="1">1 Star</button>
+        </div>
+    </div>
+
+    <div class="row" id="testimonials-container">
+        {% for testimonial in testimonials %}
+        <div class="col-lg-6 mb-4">
+            <div class="testimonial-card animate-on-scroll" data-rating="{{ testimonial.rating }}" data-animation-delay="{{ loop.index0 * 0.1 }}">
+                <div class="testimonial-header">
+                    <div class="testimonial-rating">
+                        {% for i in range(5) %}
+                            {% if i < testimonial.rating %}
+                                <span class="star">★</span>
+                            {% else %}
+                                <span class="star star-empty">★</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="testimonial-text">
+                    {{ testimonial.testimonial }}
+                </div>
+                
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        {{ testimonial.full_name[0].upper() }}
+                    </div>
+                    <div class="author-info">
+                        <h6>{{ testimonial.full_name }}</h6>
+                        <small>{{ testimonial.department }} • {{ testimonial.year_level }}</small>
+                    </div>
+                </div>
+                
+                <div class="event-info">
+                    <h6>{{ testimonial.event_title }}</h6>
+                    <small>
+                        <i class="fas fa-calendar me-1"></i>{{ testimonial.created_at|format_date('%b %d, %Y') }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="no-testimonials animate-on-scroll">
+                <i class="fas fa-comment-slash"></i>
+                <h3 class="mb-3">No Testimonials Yet</h3>
+                <p class="text-muted mb-4">Be the first to share your event experience!</p>
+                {% if session.user_id and session.role == 'student' %}
+                <a href="{{ url_for('profile') }}" class="btn btn-primary">
+                    <i class="fas fa-star me-2"></i>Share Your Experience
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login to Share
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('js-enabled');
+    
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animated');
+            }
+        });
+    }, observerOptions);
+
+    const animateElements = document.querySelectorAll('.animate-on-scroll');
+    animateElements.forEach(el => {
+        const delay = el.getAttribute('data-animation-delay');
+        if (delay) {
+            el.style.animationDelay = delay + 's';
+        }
+        observer.observe(el);
+    });
+    
+    if (!window.IntersectionObserver) {
+        animateElements.forEach(el => el.classList.add('animated'));
+    }
+
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const testimonialCards = document.querySelectorAll('.testimonial-card');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            const rating = this.getAttribute('data-rating');
+            
+            testimonialCards.forEach(card => {
+                if (rating === 'all' || card.getAttribute('data-rating') === rating) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.5s ease-in-out';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+
+const fadeInStyle = document.createElement('style');
+fadeInStyle.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+`;
+document.head.appendChild(fadeInStyle);
+</script>
+{% endblock %}

@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Campus Event Management System{% endblock %}
+
+{% block extra_css %}
+<style> 
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+    
+    .rating-input input[type="radio"] {
+        display: none;
+    }
+    
+    .rating-input .star {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+    
+    .rating-input .star:hover,
+    .rating-input .star:hover ~ .star,
+    .rating-input input[type="radio"]:checked ~ .star {
+        color: #ffc107;
+    }
+    
+    .rating-input input[type="radio"]:checked ~ .star {
+        color: #ffc107;
+    }
+    
+    .rating-display {
+        margin-bottom: 8px;
+    }
+    
+    .star-filled {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+    
+    .star-empty {
+        color: #ddd;
+        font-size: 1.2rem;
+    }
+    
+    .testimonial-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+    
+    .testimonial-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">          
+            <div class="card shadow border-0 mb-4">
+                <div class="card-body text-center p-4">
+                    <div class="avatar-placeholder bg-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px;">
+                        <i class="fas fa-user fa-3x text-white"></i>
+                    </div>
+                    <h4 class="card-title">{{ student.full_name }}</h4>
+                    <p class="text-muted mb-2">{{ student.department }} • {{ student.year_level }}</p>
+                    <p class="text-muted mb-3">Student #: {{ student.student_number }}</p>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">My Stats</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>Events Registered:</span>
+                        <strong class="text-primary">{{ registered_events|length }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>Member Since:</span>
+                        <strong class="text-muted">{{ student.created_at|format_date('%b %Y') }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Department:</span>
+                        <strong class="text-muted">{{ student.department }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            {% if registered_events %}
+            <div class="card shadow border-0">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-ticket-alt text-success me-2"></i>Entry Passes
+                    </h5>
+                    <p class="text-muted small mb-3">Download your entry passes for registered events</p>
+                    <div class="d-grid gap-2">
+                        {% for event in registered_events[:3] %}
+                        <a href="{{ url_for('generate_entry_pass', event_id=event.event_id) }}" 
+                           class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-download me-2"></i>{{ event.title[:25] }}{% if event.title|length > 25 %}...{% endif %}
+                        </a>
+                        {% endfor %}
+                        {% if registered_events|length > 3 %}
+                        <small class="text-muted text-center">And {{ registered_events|length - 3 }} more events below</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-transparent">
+                    <h5 class="card-title mb-0">My Registered Events</h5>
+                </div>
+                <div class="card-body">
+                    {% if registered_events %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Venue</th>
+                                    <th>Registered On</th>
+                                    <th>Entry Pass</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in registered_events %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ event.title }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ event.category }}</small>
+                                    </td>
+                                    <td>{{ event.event_date|format_date('%b %d, %Y') }}</td>
+                                    <td>{{ event.event_time|format_time('%I:%M %p') }}</td>
+                                    <td>{{ event.venue }}</td>
+                                    <td>{{ event.registered_at|format_date('%b %d, %Y') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('generate_entry_pass', event_id=event.event_id) }}" 
+                                           class="btn btn-sm btn-outline-success" 
+                                           title="Download Entry Pass">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <h5>No Events Registered</h5>
+                        <p class="text-muted">You haven't registered for any events yet.</p>
+                        <a href="{{ url_for('events') }}" class="btn btn-primary">Browse Events</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow border-0 mt-4">
+                <div class="card-header bg-transparent">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-star text-warning me-2"></i>Share Your Experience
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Help other students by sharing your experience at events you've attended.</p>
+                    
+                    <form method="POST" action="{{ url_for('submit_testimonial') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="mb-3">
+                            <label for="event_select" class="form-label">Select Event</label>
+                            <select class="form-select" id="event_select" name="event_id" required>
+                                <option value="">Choose an event...</option>
+                                {% for event in registered_events %}
+                                <option value="{{ event.event_id }}">{{ event.title }} - {{ event.event_date|format_date('%b %d, %Y') }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating</label>
+                            <div class="rating-input">
+                                <input type="radio" name="rating" value="5" id="star5" required>
+                                <label for="star5" class="star">★</label>
+                                <input type="radio" name="rating" value="4" id="star4">
+                                <label for="star4" class="star">★</label>
+                                <input type="radio" name="rating" value="3" id="star3">
+                                <label for="star3" class="star">★</label>
+                                <input type="radio" name="rating" value="2" id="star2">
+                                <label for="star2" class="star">★</label>
+                                <input type="radio" name="rating" value="1" id="star1">
+                                <label for="star1" class="star">★</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="testimonial_text" class="form-label">Your Experience</label>
+                            <textarea class="form-control" id="testimonial_text" name="testimonial" rows="4" 
+                                      placeholder="Share your thoughts about the event... What did you like? What could be improved?" required></textarea>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Testimonial
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow border-0 mt-4">
+                <div class="card-header bg-transparent">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-comments text-info me-2"></i>My Testimonials
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if user_testimonials %}
+                        {% for testimonial in user_testimonials %}
+                        <div class="testimonial-item mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">{{ testimonial.event_title }}</h6>
+                                    <div class="rating-display">
+                                        {% for i in range(5) %}
+                                            {% if i < testimonial.rating %}
+                                                <span class="star-filled">★</span>
+                                            {% else %}
+                                                <span class="star-empty">★</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <span class="badge 
+                                    {% if testimonial.status == 'approved' %}bg-success
+                                    {% elif testimonial.status == 'pending' %}bg-warning
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ testimonial.status|title }}
+                                </span>
+                            </div>
+                            <p class="text-muted mb-2">{{ testimonial.testimonial }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>{{ testimonial.created_at|format_date('%b %d, %Y') }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                            <h6>No Testimonials Yet</h6>
+                            <p class="text-muted">Share your first experience above!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow border-0 mt-4">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-envelope text-primary me-2"></i>My Messages & Replies
+                    </h5>
+                    <a href="{{ url_for('contact') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-plus"></i> Send New Message
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if messages_with_replies %}
+                        {% for message in messages_with_replies %}
+                        <div class="message-item mb-4 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">{{ message.subject }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ message.submitted_at|format_date('%b %d, %Y at %I:%M %p') }}
+                                    </small>
+                                </div>
+                                <span class="badge 
+                                    {% if message.status == 'replied' %}bg-success
+                                    {% elif message.status == 'read' %}bg-info  
+                                    {% else %}bg-warning{% endif %}">
+                                    {{ message.status|title }}
+                                </span>
+                            </div>
+                            
+                            <div class="bg-light p-3 rounded mb-3">
+                                <h6 class="mb-2"><i class="fas fa-user me-1"></i>Your Message:</h6>
+                                <p class="mb-0 text-muted">{{ message.message }}</p>
+                            </div>
+                            
+                            {% if message.reply_message %}
+                            <div class="bg-primary bg-opacity-10 p-3 rounded border-start border-primary border-3">
+                                <h6 class="mb-2 text-primary">
+                                    <i class="fas fa-reply me-1"></i>Admin Reply:
+                                    <small class="text-muted ms-2">
+                                        {{ message.replied_at|format_date('%b %d, %Y at %I:%M %p') }}
+                                    </small>
+                                </h6>
+                                <p class="mb-0">{{ message.reply_message }}</p>
+                            </div>
+                            {% else %}
+                                {% if message.status == 'unread' %}
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle me-1"></i>Your message has been received and is awaiting a response from our admin team.
+                                </div>
+                                {% elif message.status == 'read' %}
+                                <div class="alert alert-warning mb-0">
+                                    <i class="fas fa-eye me-1"></i>Your message has been read by our admin team. A reply will be sent soon.
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        {% if messages_with_replies|length >= 5 %}
+                        <div class="text-center">
+                            <a href="{{ url_for('student_messages') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i>View All Messages
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-envelope-open fa-3x text-muted mb-3"></i>
+                            <h6>No Messages Yet</h6>
+                            <p class="text-muted mb-3">You haven't sent any messages to the admin team yet.</p>
+                            <a href="{{ url_for('contact') }}" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>Send Your First Message
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow border-0 mt-4">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Upcoming Events You Might Like</h5>
+                    <a href="{{ url_for('events') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for event in registered_events[:3] %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ event.title }}</h6>
+                                    <p class="card-text small text-muted">
+                                        <i class="fas fa-calendar-day"></i> {{ event.event_date|format_date('%b %d') }}<br>
+                                        <i class="fas fa-map-marker-alt"></i> {{ event.venue }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-12 text-center py-3">
+                            <p class="text-muted mb-0">Register for events to see recommendations</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Profile editing feature coming soon!
+                </div>
+                <p>In the next update, you'll be able to update your personal information, change your password, and manage your notification preferences.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,834 @@
+{% extends "base.html" %}
+
+{% block title %}Events - Campus Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .events-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .events-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+        background-size: cover;
+    }
+    
+    .events-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .event-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+        background: white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .event-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .event-card-header {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 1rem;
+        border: none;
+    }
+    
+    .event-card-body {
+        padding: 1.5rem;
+    }
+    
+    .event-card-footer {
+        background: #f8f9fa;
+        border: none;
+        padding: 1rem 1.5rem;
+    }
+    
+    .event-meta {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .event-meta .d-flex {
+        margin-bottom: 0.5rem;
+    }
+    
+    .event-meta .d-flex:last-child {
+        margin-bottom: 0;
+    }
+    
+    .event-meta i {
+        width: 20px;
+        text-align: center;
+    }
+    
+    .category-badge {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .search-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 3rem;
+    }
+    
+    .search-input {
+        border: 2px solid #e9ecef;
+        border-radius: 25px;
+        padding: 0.8rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .filter-select {
+        border: 2px solid #e9ecef;
+        border-radius: 25px;
+        padding: 0.8rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .search-btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 25px;
+        padding: 0.8rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .clear-btn {
+        border: 2px solid #667eea;
+        border-radius: 25px;
+        padding: 0.8rem 2rem;
+        color: #667eea;
+        background: transparent;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .clear-btn:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .register-btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 25px;
+        padding: 0.8rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .register-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .register-btn:hover::before {
+        left: 100%;
+    }
+    
+    .register-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .register-btn:disabled {
+        background: #6c757d;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .register-btn:disabled::before {
+        display: none;
+    }
+    
+    .event-stats {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 15px;
+        padding: 1rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .no-events {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .no-events i {
+        font-size: 4rem;
+        color: #667eea;
+        margin-bottom: 1rem;
+    }
+    
+    .animate-on-scroll {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.6s ease;
+    }
+    
+    .animate-on-scroll.animated {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .js-enabled .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    
+    .js-enabled .animate-on-scroll.animated {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .loading-spinner.show {
+        display: block;
+    }
+    
+    @media (max-width: 768px) {
+        .events-hero {
+            padding: 60px 0;
+        }
+        
+        .search-section {
+            padding: 1.5rem;
+        }
+        
+        .event-card {
+            margin-bottom: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="events-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center events-hero-content">
+                <h1 class="display-4 fw-bold mb-4">Discover Amazing Events</h1>
+                <p class="lead mb-4">Join thousands of students in exciting campus activities and create unforgettable memories</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-calendar-alt me-2"></i>{{ events|length }} Events Available
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-users me-2"></i>Join Our Community
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+
+    <div class="search-section animate-on-scroll">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <form method="GET" class="d-flex gap-3 flex-wrap">
+                    <div class="flex-grow-1" style="min-width: 250px;">
+                        <input type="text" name="search" class="form-control search-input" 
+                               placeholder="Search events by title, description, or venue..." 
+                               value="{{ search_query }}">
+                    </div>
+                    <div style="min-width: 200px;">
+                        <select name="category" class="form-select filter-select">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.category }}" {% if selected_category == category.category %}selected{% endif %}>
+                                {{ category.category }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn search-btn">
+                            <i class="fas fa-search me-2"></i>Search
+                        </button>
+                        <a href="{{ url_for('events') }}" class="btn clear-btn">
+                            <i class="fas fa-times me-2"></i>Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <div class="event-stats">
+                    <h5 class="mb-1">{{ events|length }}</h5>
+                    <small>Events Found</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="events-container">
+        {% for event in events %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 event-card animate-on-scroll" data-animation-delay="{{ loop.index0 * 0.1 }}">
+                <div class="card-header event-card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="category-badge">{{ event.category }}</span>
+                        <small class="text-white-50">{{ event.event_date|format_date('%b %d') }}</small>
+                    </div>
+                </div>
+                <div class="card-body event-card-body">
+                    <h5 class="card-title fw-bold mb-3">{{ event.title }}</h5>
+                    <p class="card-text text-muted mb-3">{{ event.description[:120] }}{% if event.description|length > 120 %}...{% endif %}</p>
+                    
+                    <div class="event-meta">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-clock text-primary me-2"></i>
+                            <small class="fw-medium">{{ event.event_time|format_time('%I:%M %p') }}</small>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                            <small class="fw-medium">{{ event.venue }}</small>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            <small class="fw-medium">
+                                {% if event.capacity %}
+                                {{ event.registered_count }}/{{ event.capacity }} registered
+                                <span class="badge bg-success ms-2">{{ event.available_slots }} spots left</span>
+                                {% else %}
+                                {{ event.registered_count }} registered
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-hourglass-end text-primary me-2"></i>
+                            <small class="fw-medium">Register by {{ event.registration_deadline|format_date('%b %d, %Y') }}</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer event-card-footer">
+                    {% set is_past_deadline = event.registration_deadline < now %}
+                    {% set is_full = event.capacity and event.registered_count >= event.capacity %}
+                    
+                    {% if session.user_id and session.role == 'student' %}
+                        {% if is_past_deadline %}
+                        <button class="btn btn-secondary w-100" disabled>
+                            <i class="fas fa-times-circle me-2"></i>Registration Closed
+                        </button>
+                        {% elif is_full %}
+                        <button class="btn btn-warning w-100" disabled>
+                            <i class="fas fa-exclamation-triangle me-2"></i>Event Full
+                        </button>
+                        {% else %}
+                        <button class="btn register-btn w-100" data-event-id="{{ event.event_id }}">
+                            <i class="fas fa-calendar-plus me-2"></i>Register Now
+                        </button>
+                        {% endif %}
+                    {% elif not session.user_id %}
+                        {% if is_past_deadline or is_full %}
+                        <button class="btn btn-secondary w-100" disabled>
+                            <i class="fas fa-lock me-2"></i>Login to View
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Register
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="no-events animate-on-scroll">
+                <i class="fas fa-calendar-times"></i>
+                <h3 class="mb-3">No Events Found</h3>
+                <p class="text-muted mb-4">No events match your search criteria. Try adjusting your filters or check back later for new events.</p>
+                <a href="{{ url_for('events') }}" class="btn search-btn">
+                    <i class="fas fa-refresh me-2"></i>View All Events
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="loading-spinner" id="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading events...</p>
+    </div>
+</div>
+
+<div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border-radius: 20px 20px 0 0; border: none;">
+                <h5 class="modal-title" id="registrationModalLabel">
+                    <i class="fas fa-calendar-check me-2"></i>Confirm Registration
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <i class="fas fa-ticket-alt" style="font-size: 3rem; color: #667eea;"></i>
+                    </div>
+                    <h4 class="fw-bold text-primary">Ready to Register?</h4>
+                    <p class="text-muted">You're about to register for:</p>
+                </div>
+                
+                <div class="event-details-card" style="background: #f8f9fa; border-radius: 15px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <h5 class="fw-bold mb-3" id="modalEventTitle">Event Title</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                <small class="fw-medium" id="modalEventDate">Date</small>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <small class="fw-medium" id="modalEventTime">Time</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                <small class="fw-medium" id="modalEventVenue">Venue</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-tag text-primary me-2"></i>
+                                <small class="fw-medium" id="modalEventCategory">Category</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info" style="border-radius: 10px; border: none; background: linear-gradient(45deg, #e3f2fd, #f3e5f5);">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small class="mb-0">After registration, you'll be able to download your entry pass with all event details.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border: none; padding: 1rem 1.5rem;">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius: 25px; padding: 0.6rem 1.5rem;">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn" id="confirmRegistrationBtn" style="background: linear-gradient(45deg, #667eea, #764ba2); border: none; border-radius: 25px; padding: 0.6rem 1.5rem; color: white;">
+                    <i class="fas fa-check me-2"></i>Confirm Registration
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="background: linear-gradient(45deg, #28a745, #20c997); color: white; border-radius: 20px 20px 0 0; border: none;">
+                <h5 class="modal-title" id="successModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>Registration Successful!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="mb-4">
+                    <i class="fas fa-ticket-alt" style="font-size: 4rem; color: #28a745; animation: bounce 1s infinite;"></i>
+                </div>
+                <h4 class="fw-bold text-success mb-3">You're Registered!</h4>
+                <p class="text-muted mb-4">Your registration has been confirmed. Download your entry pass to bring to the event.</p>
+                
+                <div class="alert alert-success" style="border-radius: 10px; border: none; background: linear-gradient(45deg, #d4edda, #c3e6cb);">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-download me-2"></i>
+                        <span class="fw-medium">Entry pass includes event details, your information, and registration date</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border: none; padding: 1rem 1.5rem; justify-content: center;">
+                <button type="button" class="btn btn-success" id="downloadEntryPassBtn" style="border-radius: 25px; padding: 0.8rem 2rem;">
+                    <i class="fas fa-download me-2"></i>Download Entry Pass
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('js-enabled');
+    
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animated');
+            }
+        });
+    }, observerOptions);
+
+    const animateElements = document.querySelectorAll('.animate-on-scroll');
+    animateElements.forEach(el => {
+        const delay = el.getAttribute('data-animation-delay');
+        if (delay) {
+            el.style.animationDelay = delay + 's';
+        }
+        observer.observe(el);
+    });
+    
+    if (!window.IntersectionObserver) {
+        animateElements.forEach(el => el.classList.add('animated'));
+    }
+
+    
+    document.querySelectorAll('.register-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const eventId = this.dataset.eventId;
+            const eventCard = this.closest('.event-card');
+            showRegistrationModal(eventId, eventCard);
+        });
+    });
+
+    
+    document.querySelectorAll('.register-btn, .search-btn, .clear-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple-effect');
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+
+    document.querySelectorAll('.event-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    const searchForm = document.querySelector('form[method="GET"]');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            const searchInputForm = this.querySelector('input[name="search"]');
+            const categorySelect = this.querySelector('select[name="category"]');
+            
+            showLoadingSpinner();
+            
+            setTimeout(() => {
+            }, 300);
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const searchInputKeyboard = document.querySelector('input[name="search"]');
+            if (searchInputKeyboard) {
+                searchInputKeyboard.focus();
+            }
+        }
+    });
+
+    const searchInputElement = document.querySelector('input[name="search"]');
+    if (searchInputElement) {
+        searchInputElement.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        
+        searchInputElement.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+
+        let searchTimeout;
+        searchInputElement.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+            }, 300);
+        });
+    }
+});
+
+let currentEventId = null;
+let currentEventData = null;
+
+function showRegistrationModal(eventId, eventCard) {
+    currentEventId = eventId;
+    
+    const title = eventCard.querySelector('.card-title').textContent;
+    const date = eventCard.querySelector('.event-meta .d-flex:nth-child(1) small').textContent;
+    const time = eventCard.querySelector('.event-meta .d-flex:nth-child(2) small').textContent;
+    const venue = eventCard.querySelector('.event-meta .d-flex:nth-child(3) small').textContent;
+    const category = eventCard.querySelector('.category-badge').textContent;
+    
+    currentEventData = {
+        title: title,
+        date: date,
+        time: time,
+        venue: venue,
+        category: category
+    };
+    
+    document.getElementById('modalEventTitle').textContent = title;
+    document.getElementById('modalEventDate').textContent = date;
+    document.getElementById('modalEventTime').textContent = time;
+    document.getElementById('modalEventVenue').textContent = venue;
+    document.getElementById('modalEventCategory').textContent = category;
+    
+    const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+    modal.show();
+}
+
+document.getElementById('confirmRegistrationBtn').addEventListener('click', function() {
+    if (currentEventId) {
+        const registrationModal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
+        registrationModal.hide();
+        
+        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Registering...';
+        this.disabled = true;
+        
+        registerForEvent(currentEventId);
+    }
+});
+
+document.getElementById('downloadEntryPassBtn').addEventListener('click', function() {
+    if (currentEventId) {
+        downloadEntryPass(currentEventId);
+    }
+});
+
+function registerForEvent(eventId) {
+    fetch('/api/events/register', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ event_id: eventId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+            
+            const originalButton = document.querySelector(`[data-event-id="${eventId}"]`);
+            if (originalButton) {
+                originalButton.innerHTML = '<i class="fas fa-check me-2"></i>Registered Successfully';
+                originalButton.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+                originalButton.disabled = true;
+            }
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        } else {
+            showAlert('error', data.message);
+            const confirmBtnReset = document.getElementById('confirmRegistrationBtn');
+            confirmBtnReset.innerHTML = '<i class="fas fa-check me-2"></i>Confirm Registration';
+            confirmBtnReset.disabled = false;
+        }
+    })
+    .catch(error => {
+        showAlert('error', 'Registration failed. Please try again.');
+        const confirmBtnError = document.getElementById('confirmRegistrationBtn');
+        confirmBtnError.innerHTML = '<i class="fas fa-check me-2"></i>Confirm Registration';
+        confirmBtnError.disabled = false;
+    });
+}
+
+function downloadEntryPass(eventId) {
+    const downloadBtn = document.getElementById('downloadEntryPassBtn');
+    const originalText = downloadBtn.innerHTML;
+    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+    downloadBtn.disabled = true;
+    
+    const downloadUrl = `/api/events/${eventId}/entry-pass`;
+    
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `entry-pass-${eventId}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    setTimeout(() => {
+        downloadBtn.innerHTML = originalText;
+        downloadBtn.disabled = false;
+    }, 2000);
+}
+
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = `
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        border: none;
+        border-radius: 10px;
+    `;
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    alertDiv.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas ${icon} me-2"></i>
+            <span>${message}</span>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+function showLoadingSpinner() {
+    const spinnerShow = document.getElementById('loading-spinner');
+    if (spinnerShow) {
+        spinnerShow.classList.add('show');
+    }
+}
+
+function hideLoadingSpinner() {
+    const spinnerHide = document.getElementById('loading-spinner');
+    if (spinnerHide) {
+        spinnerHide.classList.remove('show');
+    }
+}
+
+let styleElement = document.getElementById('custom-animations-style');
+if (!styleElement) {
+    styleElement = document.createElement('style');
+    styleElement.id = 'custom-animations-style';
+    styleElement.textContent = `
+    .ripple-effect {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+    }
+    
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+    
+    .event-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .search-input, .filter-select {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .register-btn, .search-btn, .clear-btn {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+`;
+    document.head.appendChild(styleElement);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery - Campus Event Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+.gallery-container {
+    column-count: 3;
+    column-gap: 1rem;
+}
+
+.gallery-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item img:hover {
+    transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+    .gallery-container {
+        column-count: 2;
+    }
+}
+
+@media (max-width: 576px) {
+    .gallery-container {
+        column-count: 1;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="text-center mb-3">Event Gallery</h1>
+            <p class="text-center text-muted">Relive the memories from our past campus events</p>
+        </div>
+    </div>
+
+    {% if images %}
+    <div class="gallery-container">
+        {% for image in images %}
+        <div class="gallery-item">
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/gallery/' + image.image_path) }}" 
+                     alt="{{ image.caption }}" 
+                     class="card-img-top"
+                     data-bs-toggle="modal" 
+                     data-bs-target="#imageModal"
+                     data-bs-image="{{ url_for('static', filename='images/gallery/' + image.image_path) }}"
+                     data-bs-caption="{{ image.caption }}"
+                     data-bs-event="{{ image.event_title }}">
+                <div class="card-body">
+                    <h6 class="card-title">{{ image.event_title or 'Event' }}</h6>
+                    <p class="card-text small text-muted">{{ image.caption }}</p>
+                    <small class="text-muted">{{ image.uploaded_at|format_date('%b %d, %Y') }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-images fa-4x text-muted mb-3"></i>
+        <h3>No Images Yet</h3>
+        <p class="text-muted">Gallery images will be added after events.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalTitle">Event Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" alt="" class="img-fluid rounded">
+                <div class="mt-3">
+                    <h6 id="modalEvent" class="mb-2"></h6>
+                    <p id="modalCaption" class="text-muted"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageModal = document.getElementById('imageModal');
+    if (imageModal) {
+        imageModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const imageSrc = button.getAttribute('data-bs-image');
+            const caption = button.getAttribute('data-bs-caption');
+            const eventTitle = button.getAttribute('data-bs-event');
+            
+            document.getElementById('modalImage').src = imageSrc;
+            document.getElementById('modalCaption').textContent = caption;
+            document.getElementById('modalEvent').textContent = eventTitle;
+            document.getElementById('imageModalTitle').textContent = eventTitle;
+        });
+    }
+});
+</script>
+{% endblock %}

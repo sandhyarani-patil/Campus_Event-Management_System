@@ -1,0 +1,210 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Create Event - Campus Event Management System{% endblock %}
+
+{% block page_title %}Create New Event{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group">
+    <a href="{{ url_for('admin_events') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Events
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Event Details</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('create_event') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Event Title *</label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="Enter event title" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Career">Career</option>
+                                    <option value="Cultural">Cultural</option>
+                                    <option value="Academic">Academic</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Social">Social</option>
+                                    <option value="Workshop">Workshop</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Event Description *</label>
+                        <textarea class="form-control" id="description" name="description" 
+                                  rows="4" placeholder="Describe the event, including agenda, speakers, and what attendees can expect..." 
+                                  required></textarea>
+                        <div class="form-text">Provide a detailed description to attract more participants.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="event_date" class="form-label">Event Date *</label>
+                                <input type="date" class="form-control" id="event_date" name="event_date" 
+                                       min="{{ now|format_date('%Y-%m-%d') }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="event_time" class="form-label">Event Time *</label>
+                                <input type="time" class="form-control" id="event_time" name="event_time" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="venue" class="form-label">Venue *</label>
+                        <input type="text" class="form-control" id="venue" name="venue" 
+                               placeholder="e.g., Main Auditorium, Student Center, Campus Grounds" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="registration_deadline" class="form-label">Registration Deadline *</label>
+                                <input type="datetime-local" class="form-control" id="registration_deadline" 
+                                       name="registration_deadline" required>
+                                <div class="form-text">Last date and time for students to register.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="capacity" class="form-label">Capacity</label>
+                                <input type="number" class="form-control" id="capacity" name="capacity" 
+                                       placeholder="Leave empty for unlimited" min="1">
+                                <div class="form-text">Maximum number of attendees. Optional.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="reset" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-undo"></i> Reset Form
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus"></i> Create Event
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-lightbulb"></i> Tips for Great Events
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-success">
+                        <i class="fas fa-check-circle"></i> Clear Titles
+                    </h6>
+                    <p class="small text-muted">Use descriptive titles that clearly state what the event is about.</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-success">
+                        <i class="fas fa-check-circle"></i> Detailed Descriptions
+                    </h6>
+                    <p class="small text-muted">Include agenda, speakers, and benefits for attendees.</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-success">
+                        <i class="fas fa-check-circle"></i> Realistic Capacity
+                    </h6>
+                    <p class="small text-muted">Set appropriate capacity based on venue size and resources.</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-success">
+                        <i class="fas fa-check-circle"></i> Reasonable Deadlines
+                    </h6>
+                    <p class="small text-muted">Allow enough time for students to discover and register.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-bar"></i> Event Stats
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small">Total Events:</span>
+                    <strong class="text-primary">{{ total_events }}</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small">Upcoming Events:</span>
+                    <strong class="text-success">
+                        {{ events|selectattr('registration_deadline', 'gt', now)|list|length }}
+                    </strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small">Average Registrations:</span>
+                    <strong class="text-info">
+                        {% if events %}
+                        {{ (events|sum(attribute='registrations_count') / events|length)|round|int }}
+                        {% else %}
+                        0
+                        {% endif %}
+                    </strong>
+                </div>
+                <hr>
+                <p class="small text-muted mb-0">
+                    <i class="fas fa-info-circle"></i> Well-organized events typically see higher participation rates.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const timezoneOffset = now.getTimezoneOffset() * 60000;
+    const localISOTime = new Date(now - timezoneOffset).toISOString().slice(0, 16);
+    document.getElementById('registration_deadline').min = localISOTime;
+    
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowISODate = tomorrow.toISOString().split('T')[0];
+    document.getElementById('event_date').value = tomorrowISODate;
+    
+    document.getElementById('event_time').value = '14:00';
+    
+    const deadline = new Date(tomorrow);
+    deadline.setDate(deadline.getDate() - 2);
+    deadline.setHours(23, 59, 0, 0);
+    const deadlineISO = deadline.toISOString().slice(0, 16);
+    document.getElementById('registration_deadline').value = deadlineISO;
+});
+</script>
+{% endblock %}

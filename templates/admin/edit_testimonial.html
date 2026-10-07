@@ -1,0 +1,255 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Testimonial - Campus Event Management System{% endblock %}
+
+{% block page_title %}Edit Testimonial{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group">
+    <a href="{{ url_for('admin_testimonials') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Testimonials
+    </a>
+    <a href="{{ url_for('view_testimonial', testimonial_id=testimonial.testimonial_id) }}" class="btn btn-info">
+        <i class="fas fa-eye"></i> View
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Edit Testimonial</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit_testimonial', testimonial_id=testimonial.testimonial_id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Student Information</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-placeholder bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div>
+                                    <strong>{{ testimonial.full_name }}</strong>
+                                    <br><small class="text-muted">{{ testimonial.department }} • {{ testimonial.year_level }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Event Information</h6>
+                            <strong>{{ testimonial.event_title or 'General Feedback' }}</strong>
+                            {% if testimonial.event_date %}
+                            <br><small class="text-muted">{{ testimonial.event_date|format_date('%B %d, %Y') }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="rating" class="form-label fw-bold">Rating *</label>
+                        <div class="rating-input">
+                            <input type="radio" name="rating" value="5" id="star5" {% if testimonial.rating == 5 %}checked{% endif %} required>
+                            <label for="star5" class="star">★</label>
+                            <input type="radio" name="rating" value="4" id="star4" {% if testimonial.rating == 4 %}checked{% endif %}>
+                            <label for="star4" class="star">★</label>
+                            <input type="radio" name="rating" value="3" id="star3" {% if testimonial.rating == 3 %}checked{% endif %}>
+                            <label for="star3" class="star">★</label>
+                            <input type="radio" name="rating" value="2" id="star2" {% if testimonial.rating == 2 %}checked{% endif %}>
+                            <label for="star2" class="star">★</label>
+                            <input type="radio" name="rating" value="1" id="star1" {% if testimonial.rating == 1 %}checked{% endif %}>
+                            <label for="star1" class="star">★</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="testimonial" class="form-label fw-bold">Testimonial Content *</label>
+                        <textarea class="form-control" id="testimonial" name="testimonial" rows="6" 
+                                  placeholder="Enter the testimonial content..." required>{{ testimonial.testimonial }}</textarea>
+                        <div class="form-text">This content will be displayed publicly if approved.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="status" class="form-label fw-bold">Status *</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="pending" {% if testimonial.status == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="approved" {% if testimonial.status == 'approved' %}selected{% endif %}>Approved</option>
+                            <option value="rejected" {% if testimonial.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                        <div class="form-text">
+                            <strong>Pending:</strong> Awaiting review<br>
+                            <strong>Approved:</strong> Will be displayed publicly<br>
+                            <strong>Rejected:</strong> Will not be displayed
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <small class="text-muted">
+                            <span id="charCount">{{ testimonial.testimonial|length }}</span> characters
+                        </small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Testimonial
+                        </button>
+                        <a href="{{ url_for('admin_testimonials') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Preview</h6>
+            </div>
+            <div class="card-body">
+                <div class="testimonial-preview">
+                    <div class="rating-preview mb-3">
+                        <span class="stars" id="ratingPreview">
+                            {% for i in range(1, 6) %}
+                                {% if i <= testimonial.rating %}
+                                <span class="star">★</span>
+                                {% else %}
+                                <span class="star star-empty">★</span>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                    <div class="testimonial-text-preview p-3 bg-light rounded">
+                        <p class="mb-0 fst-italic" id="testimonialPreview">"{{ testimonial.testimonial }}"</p>
+                    </div>
+                    <div class="author-preview mt-3">
+                        <strong>{{ testimonial.full_name }}</strong>
+                        <br><small class="text-muted">{{ testimonial.department }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Testimonial Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h4 class="text-primary mb-1" id="ratingNumber">{{ testimonial.rating }}</h4>
+                            <small class="text-muted">Rating</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-info mb-1" id="charCountNumber">{{ testimonial.testimonial|length }}</h4>
+                        <small class="text-muted">Characters</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <small class="text-muted">
+                        <strong>Submitted:</strong><br>
+                        {{ testimonial.created_at|format_date('%B %d, %Y at %I:%M %p') }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        gap: 5px;
+        margin-bottom: 1rem;
+    }
+    
+    .rating-input input[type="radio"] {
+        display: none;
+    }
+    
+    .rating-input label {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+    
+    .rating-input label:hover,
+    .rating-input label:hover ~ label,
+    .rating-input input[type="radio"]:checked ~ label {
+        color: #ffc107;
+    }
+    
+    .testimonial-preview {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1rem;
+    }
+    
+    .stars {
+        display: flex;
+        gap: 2px;
+    }
+    
+    .star {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+    
+    .star-empty {
+        color: #ddd;
+    }
+    
+    .avatar-placeholder {
+        background: linear-gradient(45deg, #667eea, #764ba2) !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingInputs = document.querySelectorAll('input[name="rating"]');
+    const testimonialTextarea = document.getElementById('testimonial');
+    const ratingPreview = document.getElementById('ratingPreview');
+    const testimonialPreview = document.getElementById('testimonialPreview');
+    const ratingNumber = document.getElementById('ratingNumber');
+    const charCount = document.getElementById('charCount');
+    const charCountNumber = document.getElementById('charCountNumber');
+    
+    ratingInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const rating = parseInt(this.value);
+            updateRatingPreview(rating);
+        });
+    });
+    
+    testimonialTextarea.addEventListener('input', function() {
+        testimonialPreview.textContent = '"' + this.value + '"';
+        charCount.textContent = this.value.length;
+        charCountNumber.textContent = this.value.length;
+    });
+    
+    function updateRatingPreview(rating) {
+        ratingPreview.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            const star = document.createElement('span');
+            star.className = i <= rating ? 'star' : 'star star-empty';
+            star.textContent = '★';
+            ratingPreview.appendChild(star);
+        }
+        ratingNumber.textContent = rating;
+    }
+});
+</script>
+{% endblock %}
