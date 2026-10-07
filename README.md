@@ -35,10 +35,17 @@ A comprehensive web-based application designed to streamline the organization, m
 CEMS-SHARE/
 │
 ├── static/             # CSS stylesheets, JavaScript files, and images
+
 ├── templates/          # HTML templates (User & Admin views)
+
 ├── uploads/            # User-uploaded files and event media
+
 ├── .env                # Environment configuration file
+
 ├── app.py              # Main Flask application entry point
+
 ├── config.py           # Configuration settings
+
 ├── init_db.py          # Database initialization script
+
 └── requirements.txt    # Project dependencies
